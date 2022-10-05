@@ -1,3 +1,5 @@
+from caesar import encrypt_caesar, decrypt_caesar
+
 def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     """
     Encrypts plaintext using a Vigenere cipher.
@@ -9,6 +11,8 @@ def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     >>> encrypt_vigenere("ATTACKATDAWN", "LEMON")
     'LXFOPVEFRNHR'
     """
+    ord_A, ord_Z = ord("A"), ord("Z")
+    ord_a, ord_z = ord("a"), ord("z")
     ciphertext = ""
     is_up = False
     for i in range(len(plaintext)):
@@ -17,15 +21,7 @@ def encrypt_vigenere(plaintext: str, keyword: str) -> str:
             is_up = True
         start = ord("a")
         shift = ord(keyword[j].lower()) - start
-        if 65 <= ord(plaintext[i]) <= 90 or 97 <= ord(plaintext[i]) <= 122:
-            if is_up:
-                ciphertext += chr(start + (ord(plaintext[i].lower()) - start + shift) % 26).upper()
-                is_up = False
-                continue
-            ciphertext += chr(start + (ord(plaintext[i].lower()) - start + shift) % 26)
-        else:
-            ciphertext += plaintext[i]
-
+        ciphertext += encrypt_caesar(plaintext[i], shift)
     # PUT YOUR CODE HERE
     return ciphertext
 
@@ -41,6 +37,8 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
     >>> decrypt_vigenere("LXFOPVEFRNHR", "LEMON")
     'ATTACKATDAWN'
     """
+    ord_A, ord_Z = ord("A"), ord("Z")
+    ord_a, ord_z = ord("a"), ord("z")
     plaintext = ""
     is_up = False
     for i in range(len(ciphertext)):
@@ -49,14 +47,6 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
             is_up = True
         start = ord("a")
         shift = ord(keyword[j].lower()) - start
-        if 65 <= ord(ciphertext[i]) <= 90 or 97 <= ord(ciphertext[i]) <= 122:
-            if is_up:
-                plaintext += chr(start + (ord(ciphertext[i].lower()) - start - shift) % 26).upper()
-                is_up = False
-                continue
-            plaintext += chr(start + (ord(ciphertext[i].lower()) - start - shift) % 26)
-        else:
-            plaintext += ciphertext[i]
-
+        plaintext += decrypt_caesar(ciphertext[i], shift)
     # PUT YOUR CODE HERE
     return plaintext
