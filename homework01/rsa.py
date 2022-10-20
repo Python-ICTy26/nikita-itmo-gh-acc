@@ -21,6 +21,7 @@ def is_prime(n: int) -> bool:
     return True
     # PUT YOUR CODE HERE
 
+
 def gcd(a: int, b: int) -> int:
     """
     Euclid's algorithm for determining the greatest common divisor.
@@ -32,7 +33,7 @@ def gcd(a: int, b: int) -> int:
     """
     # PUT YOUR CODE HERE
     if b < a:
-        return gcd(a, b)
+        return gcd(b, a)
     elif a == 0:
         return b
     return gcd(b % a, a)
@@ -46,10 +47,17 @@ def multiplicative_inverse(e: int, phi: int) -> int:
     >>> multiplicative_inverse(7, 40)
     23
     """
-    # PUT YOUR CODE HERE
-    while e != 0:
 
-    pass
+    # PUT YOUR CODE HERE
+    def ext_gcd(a, b):
+        if a == 0:
+            return b, 0, 1
+        else:
+            g, x, y = ext_gcd(b % a, a)
+            return g, y - (b // a) * x, x
+
+    g_, x_, y_ = ext_gcd(min(e, phi), max(e, phi))
+    return x_ % phi
 
 
 def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[int, int]]:
@@ -58,10 +66,10 @@ def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[in
     elif p == q:
         raise ValueError("p and q cannot be equal")
 
-    # n = pq
+    n = p * q
     # PUT YOUR CODE HERE
 
-    # phi = (p-1)(q-1)
+    phi = (p - 1) * (q - 1)
     # PUT YOUR CODE HERE
 
     # Choose an integer e such that e and phi(n) are coprime
@@ -78,7 +86,7 @@ def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[in
 
     # Return public and private keypair
     # Public key is (e, n) and private key is (d, n)
-    return ((e, n), (d, n))
+    return (e, n), (d, n)
 
 
 def encrypt(pk: tp.Tuple[int, int], plaintext: str) -> tp.List[int]:
@@ -95,7 +103,7 @@ def decrypt(pk: tp.Tuple[int, int], ciphertext: tp.List[int]) -> str:
     # Unpack the key into its components
     key, n = pk
     # Generate the plaintext based on the ciphertext and key using a^b mod m
-    plain = [chr((char ** key) % n) for char in ciphertext]
+    plain = [chr((char**key) % n) for char in ciphertext]
     # Return the array of bytes as a string
     return "".join(plain)
 
