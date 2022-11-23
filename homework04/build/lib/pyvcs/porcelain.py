@@ -1,14 +1,12 @@
 import os
 import pathlib
-import shutil
 import typing as tp
+import shutil
 
 from pyvcs.index import read_index, update_index
-from pyvcs.objects import (commit_parse, find_object, find_tree_files,
-                           read_object)
+from pyvcs.objects import commit_parse, find_object, find_tree_files, read_object
 from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 from pyvcs.tree import commit_tree, write_tree
-
 # from index import read_index, update_index
 # from objects import commit_parse, find_object, find_tree_files, read_object
 # from refs import get_ref, is_detached, resolve_head, update_ref

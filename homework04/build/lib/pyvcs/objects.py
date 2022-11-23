@@ -8,7 +8,6 @@ import zlib
 
 from pyvcs.refs import update_ref
 from pyvcs.repo import repo_find
-
 # from repo import repo_find
 
 
