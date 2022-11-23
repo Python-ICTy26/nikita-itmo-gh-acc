@@ -11,10 +11,10 @@ def repo_find(workdir: tp.Union[str, pathlib.Path] = ".") -> pathlib.Path:
         root = ".git"
 
     if os.path.exists(workdir / root):
-        return workdir / root
+        return workdir.absolute() / root
     for c_dir in workdir.parents:
-        if os.path.exists(c_dir / root):
-            return c_dir / root
+        if os.path.exists(c_dir.absolute() / root):
+            return c_dir.absolute() / root
     raise Exception("Not a git repository")
 
 

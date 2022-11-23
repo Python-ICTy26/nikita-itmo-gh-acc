@@ -8,6 +8,7 @@ import zlib
 
 from pyvcs.refs import update_ref
 from pyvcs.repo import repo_find
+
 # from repo import repo_find
 
 
@@ -29,10 +30,13 @@ def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
             os.makedirs(root / "objects" / s_hsh[:2])
         except FileExistsError:
             pass
+        if os.path.isfile(root / "objects" / s_hsh[:2] / s_hsh[2:]):
+            os.chmod(root / "objects" / s_hsh[:2] / s_hsh[2:], 777)
+            print("OK")
         with open(root / "objects" / s_hsh[:2] / s_hsh[2:], "wb") as f:
             # print(data)
             if type(info) is str or type(zlib.compress(info)) is str:
-                print("idi nahui")
+                print("smth wrong")
             f.write(zlib.compress(info))
     return s_hsh
 

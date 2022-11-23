@@ -8,6 +8,7 @@ import zlib
 from pyvcs.index import GitIndexEntry, read_index
 from pyvcs.objects import hash_object
 from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
+
 # from repo import repo_find, repo_create
 # from index import update_index, read_index, GitIndexEntry
 # from objects import hash_object, cat_file

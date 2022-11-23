@@ -4,43 +4,45 @@ import typing as tp
 
 
 def repo_find(workdir: tp.Union[str, pathlib.Path] = ".") -> pathlib.Path:
-    limit = 50
+    workdir = pathlib.Path(workdir)
     try:
-        base = os.environ["GIT_DIR"]
+        root = os.environ["GIT_DIR"]
     except KeyError:
-        base = ".git"
-    for _ in range(limit):
-        if os.path.isdir(base):
-            return pathlib.Path(os.getcwd() + f"/{base}")
-        else:
-            os.chdir("..")
+        root = ".git"
+
+    if os.path.exists(workdir / root):
+        return workdir.absolute() / root
+    for c_dir in workdir.parents:
+        if os.path.exists(c_dir.absolute() / root):
+            return c_dir.absolute() / root
+    raise Exception("Not a git repository")
 
 
 def repo_create(workdir: tp.Union[str, pathlib.Path]) -> pathlib.Path:
-    if os.path.isfile(workdir):
-        raise Exception(f"{workdir.name} is not a directory")
-    cur_path = os.getcwd()
+    path = pathlib.Path(workdir)
+    if not path.is_dir():
+        raise Exception(f"{path.name} is not a directory")
+
     try:
-        repo_path = f"{workdir}/{os.environ['GIT_DIR']}"
+        root = os.environ["GIT_DIR"]
     except KeyError:
-        repo_path = f"{workdir}/.git"
-    os.makedirs(repo_path)
-    os.chdir(repo_path)
-    d = {"HEAD": "ref: refs/heads/master\n",
-         "config": "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n\tlogallrefupdates = false\n",
-         "description": "Unnamed pyvcs repository.\n"}
-    for name in ("HEAD", "config", "description"):
-        create_new_file(name, d[name])
-    for dir_ in ("objects", "refs"):
-        os.mkdir(dir_)
-    os.chdir("refs")
-    create_new_file("heads", None)
-    create_new_file("tags", None)
-    os.chdir(cur_path)
-    return pathlib.Path(repo_path)
+        root = ".git"
 
+    (path / root).mkdir(exist_ok=False, parents=True)
+    (path / root / "refs" / "heads").mkdir(exist_ok=True, parents=True)
+    (path / root / "refs" / "tags").mkdir(exist_ok=True, parents=True)
+    (path / root / "objects").mkdir(exist_ok=True, parents=True)
 
-def create_new_file(name, content):
-    with open(name, 'w') as f:
-        if content:
-            f.write(content)
+    with (
+        open(path / root / "HEAD", 'w') as head,
+        open(path / root / "config", 'w') as config,
+        open(path / root / "description", 'w') as description
+    ):
+        head.write(
+            "ref: refs/heads/master\n")
+        config.write(
+            "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n\tlogallrefupdates = false\n")
+        description.write(
+            "Unnamed pyvcs repository.\n")
+
+    return path / root
