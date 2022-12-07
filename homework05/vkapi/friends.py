@@ -4,11 +4,11 @@ import math
 import time
 import typing as tp
 
-import config
 import requests
-import session
-from exceptions import APIError
+import vkapi.config
 from tqdm import tqdm
+from vkapi.exceptions import APIError
+from vkapi.session import Session
 
 # from vkapi import config, session
 # from vkapi.exceptions import APIError
@@ -40,12 +40,12 @@ def get_friends(
     :return: Список идентификаторов друзей пользователя или список пользователей.
     """
     arg_dict = {"user_id": user_id, "count": count, "offset": offset, "fields": fields}
-    http_session = session.Session(base_url=config.VK_CONFIG["domain"])
+    http_session = Session(base_url=vkapi.config.VK_CONFIG["domain"])
     resp = http_session.get(
         "friends.get",
-        access_token=config.VK_CONFIG["access_token"],
+        access_token=vkapi.config.VK_CONFIG["access_token"],
         **arg_dict,
-        v=config.VK_CONFIG["version"],
+        v=vkapi.config.VK_CONFIG["version"],
         timeout=5
     )
     try:
@@ -68,10 +68,10 @@ def get_mutual(
     count: tp.Optional[int] = None,
     offset: int = 0,
     progress=None,
-) -> tp.Union[tp.List[int], tp.List[MutualFriends]]:
+) -> tp.Optional[tp.List[MutualFriends]]:
     """
     Получить список идентификаторов общих друзей между парой пользователей.
-
+    tp.List[int],
     :param source_uid: Идентификатор пользователя, чьи друзья пересекаются с друзьями пользователя с идентификатором target_uid.
     :param target_uid: Идентификатор пользователя, с которым необходимо искать общих друзей.
     :param target_uids: Cписок идентификаторов пользователей, с которыми необходимо искать общих друзей.
@@ -99,25 +99,26 @@ def get_mutual(
         "offset": offset,
         "progress": progress,
     }
-    http_session = session.Session(base_url=config.VK_CONFIG["domain"])
+    http_session = Session(base_url=vkapi.config.VK_CONFIG["domain"])
     result = []
     for req in range(req_count):
         resp = http_session.get(
             "friends.getMutual",
-            access_token=config.VK_CONFIG["access_token"],
+            access_token=vkapi.config.VK_CONFIG["access_token"],
             **arg_dict,
-            v=config.VK_CONFIG["version"]
+            v=vkapi.config.VK_CONFIG["version"]
         )
         new = resp.json()["response"]
         if target_uids:
             result.extend([MutualFriends(**f) for f in new])  # type: ignore
         else:
-            kwargs = {
-                "id": target_uid,
-                "common_friends": new,
-                "common_count": len(new),
-            }  # type : ignore
-            result.extend([MutualFriends(**kwargs)])  # type: ignore
+            # kwargs = {
+            #     "id": target_uid,
+            #     "common_friends": new,
+            #     "common_count": len(new),
+            # }  # type : ignore
+            # result.extend([MutualFriends(**kwargs)])  # type: ignore
+            return new
         arg_dict["offset"] += 100
         if req % 2 == 0:
             time.sleep(1)

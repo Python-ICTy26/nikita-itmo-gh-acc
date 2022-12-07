@@ -44,7 +44,7 @@ class GetWallTestCase(unittest.TestCase):
         )
         resp_body = unquote(responses.calls[0].request.body)
         self.assertTrue(
-            '"count":"1"' in resp_body or '"count":+"1"' in resp_body,
+            '"count":"1"' in resp_body or '"count":+1' in resp_body,
             msg="Вы должны сделать один запрос, чтобы узнать общее число записей",
         )
 
@@ -63,7 +63,7 @@ class GetWallTestCase(unittest.TestCase):
         )
         start = time.time()
         with patch("vkapi.wall.get_posts_2500") as get_posts_2500:
-            get_posts_2500.return_value = []
+            get_posts_2500.return_value = {}
             _ = get_wall_execute(domain="cs102py", count=6000)
         end = time.time()
         self.assertGreaterEqual(

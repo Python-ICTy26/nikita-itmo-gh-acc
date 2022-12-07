@@ -1,5 +1,6 @@
 import datetime
 import datetime as dt
+import math
 import statistics
 import typing as tp
 
@@ -36,7 +37,10 @@ def age_predict(user_id: int) -> tp.Optional[float]:
         if t_dob:
             count += 1
             age += (dt.datetime.now().date() - t_dob).days / 365  # type: ignore
-    return age / count
+    try:
+        return math.floor(age / count)
+    except ZeroDivisionError:
+        return None
 
 
 if __name__ == "__main__":
