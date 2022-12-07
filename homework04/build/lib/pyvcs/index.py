@@ -4,10 +4,9 @@ import os
 import pathlib
 import struct
 import typing as tp
-
 # from repo import repo_create, repo_find
 from pyvcs.objects import hash_object
-
+# from objects import hash_object
 
 class GitIndexEntry(tp.NamedTuple):
     # @see: https://github.com/git/git/blob/master/Documentation/technical/index-format.txt
@@ -29,8 +28,8 @@ class GitIndexEntry(tp.NamedTuple):
         to_pack = (self.ctime_s, self.ctime_n, self.mtime_s, self.mtime_n,
                    self.dev, self.ino, self.mode, self.uid, self.gid, self.size)
         return struct.pack(">LLLLLLLLLL", *to_pack) \
-               + self.sha1 + struct.pack(">H", self.flags) + self.name.encode() \
-               + b"\x00\x00\x00"
+            + self.sha1 + struct.pack(">H", self.flags) + self.name.encode() \
+            + b"\x00\x00\x00"
 
     @staticmethod
     def unpack(data: bytes) -> "GitIndexEntry":
@@ -100,6 +99,7 @@ def update_index(gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool
         index_entries.append(obj)
     if write:
         write_index(gitdir, sorted(index_entries, key=lambda x: x.name))
+
 
 # if __name__ == "__main__":
 #     gitdir = repo_find()

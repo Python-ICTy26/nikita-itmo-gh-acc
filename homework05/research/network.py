@@ -1,3 +1,4 @@
+import re
 import typing as tp
 from collections import defaultdict
 
@@ -5,24 +6,36 @@ import community as community_louvain
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
-
+import requests
+import responses
+import vkapi
 from vkapi.friends import get_friends, get_mutual
 
 
 def ego_network(
     user_id: tp.Optional[int] = None, friends: tp.Optional[tp.List[int]] = None
 ) -> tp.List[tp.Tuple[int, int]]:
-    """
-    Построить эгоцентричный граф друзей.
-
-    :param user_id: Идентификатор пользователя, для которого строится граф друзей.
-    :param friends: Идентификаторы друзей, между которыми устанавливаются связи.
-    """
-    pass
+    graph = []
+    if not friends:
+        friends = get_friends(user_id=user_id, fields=["nickname"])  # type: ignore
+    try:
+        active_friends = [
+            user["id"]
+            for user in friends.items  # type:ignore
+            if not user.get("deactivated") and not user.get("is_closed")
+        ]
+    except Exception:
+        active_friends = friends  # type: ignore
+    mutual = get_mutual(source_uid=user_id, target_uids=active_friends)
+    for f in mutual:  # type: ignore
+        f_id = f.get("id")
+        for m_id in f["common_friends"]:  # type: ignore
+            graph.append((f_id, m_id))
+    return graph  # type: ignore
 
 
 def plot_ego_network(net: tp.List[tp.Tuple[int, int]]) -> None:
-    graph = nx.Graph()
+    graph = nx.Graph()  # type: ignore
     graph.add_edges_from(net)
     layout = nx.spring_layout(graph)
     nx.draw(graph, layout, node_size=10, node_color="black", alpha=0.5)
